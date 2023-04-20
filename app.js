@@ -190,6 +190,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // move the ghosts randomly
   ghosts.forEach((ghost) => moveGhost(ghost));
+  //draw blinky on the board
+  let blinkyCurrentIndex = 197;
+  squares[blinkyCurrentIndex].classList.add("blinky");
+
+  //get the coordinates of pacman or blinky on the grid with X and Y axis
+  function getCoordinates(index) {
+    return [index % width, Math.floor(index / width)];
+  }
+
+  //move blinky
+  function moveBlinky() {
+    const directions = [-1, +1, +width, -width];
+    let ghostimerId = NaN;
+    let direction = directions[Math.floor(Math.random() * directions.length)];
+
+    ghostimerId = setInterval(function () {
+      console.log(blinkyCurrentIndex);
+      if (!squares[blinkyCurrentIndex + direction].classList.contains("wall")) {
+        //remove the ghosts classes
+        squares[blinkyCurrentIndex].classList.remove("blinky");
+        //move into that space
+
+        const [blinkyX, blinkyY] = getCoordinates(blinkyCurrentIndex);
+        const [pacManX, pacManY] = getCoordinates(pacmanCurrentIndex);
+        const [blinkyNextX, blinkyNextY] = getCoordinates(
+          blinkyCurrentIndex + direction
+        );
+
+        function isXCoordCloser() {
+          if (blinkyNextX - pacManX > blinkyX - pacManX) {
+            return true;
+          } else return false;
+        }
+
+        function isYCoordCloser() {
+          if (blinkyNextY - pacManY > blinkyY - pacManY) {
+            return true;
+          } else return false;
+        }
+        if (isXCoordCloser() || isYCoordCloser()) {
+          blinkyCurrentIndex += direction;
+          squares[blinkyCurrentIndex].classList.add("blinky");
+        } else {
+          squares[blinkyCurrentIndex].classList.add("blinky");
+          direction = directions[Math.floor(Math.random() * directions.length)];
+        }
+        squares[blinkyCurrentIndex].classList.add("blinky");
+      } else direction = directions[Math.floor(Math.random() * directions.length)];
+
+      if (squares[blinkyCurrentIndex].classList.contains("pac-man"))
+        clearInterval(ghostimerId);
+    }, 300);
+  }
+
+  moveBlinky();
 
   //write the function to move the ghosts
   function moveGhost(ghost) {
@@ -240,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   //check for a Game Over
-  function checkGameOver() {
+  function checkForGameOver() {
     if (
       squares[pacmanCurrentIndex].classList.contains("ghost") &&
       !squares[pacmanCurrentIndex].classList.contains("scared-ghost")
@@ -259,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ghosts.forEach((ghost) => clearInterval(ghost.timerId));
       document.removeEventListener("keyup", movePacman);
       setTimeout(function () {
-        alert("You have WON!");
+        alert(`You have WON! Your score is ${score}`);
       }, 500);
     }
   }
